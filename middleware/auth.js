@@ -1,21 +1,41 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
 
-export const checkUserSession (req, res, next) => {
-    if (req.session.user) {
-        next();
-    } else if (req.headers.authorization) {
-        try {
-            // extract token from headers
-            const token = req.header.authorization.split(" ")[1];
-            // verify the token to get the user and append to request
-            req.user = jwt.verify(token, process.env.JWT_PRIVATE_KEY);
-            // Call next fuction
-            next();
-        } catch (error) {
-            return res.status(401).json({ error: "Token Expired" })
-        }
+const auth = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+
+    if (!token) {
+      return res.status(401).json({ message: 'Authentication token is required.' });
     }
-    else {
-        res.status(401).json({ error: 'Not authenticated' })
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(401).json({ message: 'User not found. Please authenticate.' });
     }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    res.status(401).json({ message: 'Authentication failed.', error: error.message });
+  }
 };
+
+export const checkUserSession = (req, res, next) => {
+  if (req.session.user) {
+    next();
+  } else if (req.headers.authorization) {
+    try {
+      const token = req.headers.authorization.split(' ')[1];
+      req.user = jwt.verify(token, process.env.JWT_SECRET);
+      next();
+    } catch (error) {
+      return res.status(401).json({ message: 'Token expired or invalid.' });
+    }
+  } else {
+    res.status(401).json({ message: 'Not authenticated' });
+  }
+};
+
+export default auth;
