@@ -1,23 +1,29 @@
 // Import packages
 import express from "express";
 import mongoose from "mongoose";
+import 'dotenv/config';
 import cors from "cors";
 import session from "express-session";
-import expressOasGenerator from '@mickeymond/express-oas-generator'
 import MongoStore from "connect-mongo";
+import expressOasGenerator from '@mickeymond/express-oas-generator'
+import { dbConnection } from "./config/dbConfig.js";
+
 // import userRouter from "./routes/user.js";
 import outageRouter from './routes/outages.js';
-// import neighborhoodRouter from "./routes/neighborhood.js";
-// import { checkUserSession } from "./middleware/auth.js";
-
-
-// Db connection
-await mongoose.connect(process.env.MONGO_URI)
-console.log("Database is connected")
+import neighbourhoodRouter from "./routes/neighborhood.js";
+import { checkUserSession, auth } from "./middleware/auth.js";
 
 
 // create express app
 const app = express();
+
+
+// Db connection
+
+dbConnection();
+
+
+
 expressOasGenerator.handleResponses(app, {
     alwaysServeDocs: true,
     tags: ['auth'],
@@ -28,29 +34,35 @@ expressOasGenerator.handleResponses(app, {
 // To Parse incomming JSON request and put the parsed data in req.body 
 app.use(cors({credentials:true, origin:""}));
 app.use(express.json());
-app.use(session({
-    secret:process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    // cookie: { secure:true },
+// app.use(session({
+//     secret:process.env.SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: true,
+//     // cookie: { secure:true },
 
-    store:MongoStore.create({
-        mongoUrl:process.env.MONGO_URI
-    })
-}))
+//     store:MongoStore.create({
+//         mongoUrl:process.env.MONGO_URI
+//     })
+// }))
 
 
 // To custom middleware to check user session or token
-// app.use(checkUserSession);
-
+app.use(checkUserSession);
+app.use(auth);
 
 // Use routes
 // app.use ('/api/v1', userRouter);
 app.use('/api/v1', outageRouter);
-// app.use('/api/v1', neighborhoodRouter);
+app.use('/api/v1', neighbourhoodRouter);
 // app.use('/api/v1', outageRoutes);
 // app.use('/api/v1', outageRoutes);
 // app.use('/api/v1', outageRoutes);
+
+// Default route for root
+app.get('/', (req, res) => {
+    res.send('Welcome to the Outage Management System API');
+  });
+
 
 
 expressOasGenerator.handleRequests();
@@ -60,5 +72,6 @@ app.use((req, res) => res.redirect('/api-doc'));
 // Port-listening connection
 const port = process.env.PORT || 3050;
 app.listen(port, () => {
-    console.log(`App listening on port $(port)`);
+    console.log(`Server running on port ${port}`);
 });
+

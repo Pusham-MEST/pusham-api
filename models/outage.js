@@ -7,10 +7,11 @@ const outageSchema = new Schema({
   startTime: { type: Date, required: true },
   endTime: { type: Date, required: true },
   status: { type: String, enum: ['Scheduled', 'Ongoing', 'Resolved'], required: true },
+  // List of affected areas or neighborhoods
+  affectedNeighbourhood: [{ type: Schema.Types.ObjectId, ref: 'Neighbourhood', required: false }], 
+  severity: { type: String, enum: ['Low', 'Medium', 'High'], required: false },
   description: { type: String, required: true },
-  user: { type: Types.ObjectId, ref: 'User',select:false ,unique:true },
-  // more fields to be added
-
+  user: { type: Types.ObjectId, ref: 'User',select:false }
 },{
   timestamps:true
 });
