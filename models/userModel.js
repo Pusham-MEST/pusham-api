@@ -21,9 +21,17 @@ const userSchema = new Schema({
     userName: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     phoneNumber: { type: String, required: false },
+    password: {type: String, required: true},
+    confirmPassword: {type: String, required: true},
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date }
+
       // Array of neighborhood IDs or names
-    neighborhoods: [{ type: String }],
-    notificationPreferences: notificationPreferencesSchema
+  
+
+
+
+
     
     },{
     timestamps:true
