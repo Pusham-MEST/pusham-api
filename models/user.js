@@ -46,8 +46,14 @@ const userSchema = new Schema({
   timestamps: true
 });
 
+
+
+
+
 // Apply the toJSON plugin
 userSchema.plugin(toJSON)
 
-export const UserModel = model("User", userSchema);
 
+export const UserModel = model("User", userSchema);
+ 
+// export const resetTokenModel = model('resetToken', resetTokenSchema)

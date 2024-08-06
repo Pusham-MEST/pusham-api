@@ -13,7 +13,7 @@ import "dotenv/config";
 // }
 
 
-const connectionString = process.env.MONGO_URI; // Fetch connection string from environment variables
+const connectionString = process.env.mongo_url; // Fetch connection string from environment variables
 
 export const dbConnection = () => {
   mongoose.connect(connectionString).then(() => {
