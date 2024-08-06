@@ -1,4 +1,4 @@
-// Import packages
+import userRouter from "./router/user_router.js";
 import express from "express";
 import mongoose from "mongoose";
 import 'dotenv/config';
@@ -12,6 +12,7 @@ import userRouter from "./router/user_router.js";
 import outageRouter from './routes/outages.js';
 import neighbourhoodRouter from "./routes/neighborhood.js";
 import { checkUserSession } from "./middleware/auth.js";
+
 
 
 // create express app
@@ -68,6 +69,15 @@ app.get('/', (req, res) => {
 expressOasGenerator.handleRequests();
 app.use((req, res) => res.redirect('/api-doc'));
 
+
+app.use(express.json());
+
+
+app.use(userRouter)
+// Db connection
+await mongoose.connect(process.env.mongo_url).then(() => {
+    console.log('Database is connected');
+})
 
 // Port-listening connection
 const port = process.env.PORT || 3050;
