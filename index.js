@@ -1,4 +1,3 @@
-import userRouter from "./router/user_router.js";
 import express from "express";
 import mongoose from "mongoose";
 import 'dotenv/config';
@@ -7,11 +6,10 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import expressOasGenerator from '@mickeymond/express-oas-generator'
 import { dbConnection } from "./config/dbConfig.js";
-
 import userRouter from "./router/user_router.js";
 import outageRouter from './routes/outages.js';
 import neighbourhoodRouter from "./routes/neighborhood.js";
-import { checkUserSession } from "./middleware/auth.js";
+import checkUserSession from "./middleware/auth.js";
 
 
 
@@ -20,20 +18,19 @@ const app = express();
 
 
 // Db connection
-
 dbConnection();
 
 
 
 expressOasGenerator.handleResponses(app, {
     alwaysServeDocs: true,
-    tags: ['auth'],
+    tags: ["auth", "outages", "neighbourhoods"],
     mongooseModels: mongoose.modelNames()
 })
 
 // Middleware
 // To Parse incomming JSON request and put the parsed data in req.body 
-app.use(cors({credentials:true, origin:""}));
+app.use(cors({credentials:true, origin:"http://localhost:5173/"}));
 app.use(express.json());
 app.use(session({
     secret:process.env.SESSION_SECRET,
@@ -42,22 +39,23 @@ app.use(session({
     // cookie: { secure:true },
 
     store:MongoStore.create({
-        mongoUrl:process.env.MONGO_URI
+        mongoUrl:process.env.mongo_url
     })
 }))
 
 
 // To custom middleware to check user session or token
 app.use(checkUserSession);
-app.use(auth);
+// app.use(auth);
+
 
 // Use routes
-app.use ('/api/v1', user_Router);
+// app.use( authRouter );
+app.use ('/api/v1', userRouter);
 app.use('/api/v1', outageRouter);
 app.use('/api/v1', neighbourhoodRouter);
-// app.use('/api/v1', outageRoutes);
-// app.use('/api/v1', outageRoutes);
-// app.use('/api/v1', outageRoutes);
+
+
 
 // Default route for root
 app.get('/', (req, res) => {
@@ -74,10 +72,12 @@ app.use(express.json());
 
 
 app.use(userRouter)
-// Db connection
-await mongoose.connect(process.env.mongo_url).then(() => {
-    console.log('Database is connected');
-})
+// // Db connection
+// await mongoose.connect(process.env.mongo_url).then(() => {
+//     console.log('Database is connected');
+// })
+
+
 
 // Port-listening connection
 const port = process.env.PORT || 3050;
