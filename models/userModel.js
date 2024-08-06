@@ -36,9 +36,24 @@ const userSchema = new Schema({
     },{
     timestamps:true
   });
+//reset token model 
+const resetTokenSchema = new Schema({
+  userId:{type:Types.ObjectId,required:true, ref:'User'},
+  expired:{type:Boolean, default:false},
+  expiredAt:{
+      type:Date,
+      default:() => new Date().setHours(new Date().getHours() + 2)
+  }
+
+},{
+  timestamps:true
+})
+
  
   // Apply the toJSON plugin
   userSchema.plugin(toJSON)
+  resetTokenSchema.plugin(toJSON)
 
+  export const resetTokenModel= model('resetToken',resetTokenSchema)
     export const UserModel = model('User', userSchema);
     

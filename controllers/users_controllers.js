@@ -1,8 +1,9 @@
-import { json } from "express";
-import { UserModel } from "../models/userModel.js";
+
+import { UserModel,resetTokenModel } from "../models/userModel.js";
 import bcrypt from "bcrypt"
 import jwt from 'jsonwebtoken'
-import nodemailer from "nodemailer"
+import { mailTransporter} from "../config/mail.js";
+
 
 //post  or user registration
 
@@ -58,112 +59,62 @@ export const logOut =  async (req, res, next) => {
     next(error)
  }}
     
-
-//reset password
-
-export const requestPasswordReset = async (req, res, next) => {
-    const { email } = req.body;
-    try {
-        const user = await UserModel.findOne({ email });
-        if (!user) {
-            return res.status(404).json('User not found')
-        }
-        const token = jwt.sign({ email: user.email }, process.env.JWT_PRIVATE_KEY, { expiresIn: '1h' });
-        user.resetPasswordToken = token;
-        user.resetPasswordExpires = Date.now() + 3600000;
-        await user.save();
-
-        // Send OTP via email
-        const transporter = nodemailer.createTransport({
-            host: 'mail.youth-arise.org', // Outgoing server from cPanel
-            port: 465, // Port for SSL
-            secure: true, // true for port 465, false for other ports
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
-        });
-
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: user.email,
-            subject: 'Password Reset',
-            text: `You are receiving this because you (or someone else)  requested to reset password for your account.\n\n` +
-                `Please use the  OTP to complete the process:\n\n` +
-                `${token}\n\n` +
-                `If you did not request this, please ignore this email and your password will remain unchanged.\n`
-        };
-
-        transporter.sendMail(mailOptions, (err) => {
-            if (err) {
-                console.error('There was an error', err);
-            } else {
-                res.status(200).json('Password recovery email sent');
-            }
-        });
+//forgot passowrd 
+export const forgotPassword = async (req, res, next) =>{
+try {
+    
+    //Find a user with provided email
+    const user = await UserModel.findOne({email:req.body.email});
+    if(!user){
+        return res.status(404).json({message:'User not found'});
     }
-    catch (error) {
-        next(error);
+    
+    //Generate Reset Token 
+const resetToken = await resetTokenModel.create({
+    userId:user.id,
+    });
+       await mailTransporter.sendMail({
+        to:req.body.email,
+        from:"emmanuel@laremdetech.com",
+        subject:"Reset Password",
+        html:`
+        <h3>Hello ${user.firstName}</h3>
+        <h4> Please follow the link below to reset your Password</h4>
+        <a href="${process.env.FRONTEND_URL}/reset-password/${resetToken.id}" > Click Here</a> `
+    });
+
+    // /Return Response 
+    res.status(200).json('Password reset email sent')
+    
     }
-};
+ catch (error) {
+    next(error)
+    
+}
+}
 
-// Confirm OTP
-export const confirmOtp = async (req, res, next) => {
-    const { email, otp } = req.body;
+
+ //Verify Reset Password Token
+export const verifyResetToken = async (req, res, next) => {
     try {
-        const user = await UserModel.findOne({ email });
-        if (!user || !user.resetPasswordToken || user.resetPasswordExpires < Date.now()) {
-            return res.status(400).json('OTP is invalid or has expired');
+        //Find Reset Token by id 
+        const resetToken = await resetTokenModel.findById(req.params.id);
+        if(!resetToken){
+            return res.status(404).json({message:'Reset Token Not Found'});
         }
-
-        jwt.verify(otp, process.env.JWT_PRIVATE_KEY, async (err, decoded) => {
-            if (err) {
-                return res.status(400).json('OTP is invalid');
-            }
-            if (decoded.email !== email) {
-                return res.status(400).json('OTP does not match email');
-            }
-            res.status(200).json('OTP confirmed');
-
-        });
-    } catch (error) {
-        next(error);
-    }
-};
-
-// Reset Password
-
-export const resetPassword = async (req, res, next) => {
-    const { email, otp, newPassword } = req.body;
-    try {
-        const user = await UserModel.findOne({ email });
-        if (!user || !user.resetPasswordToken || user.resetPasswordExpires < Date.now()) {
-            return res.status(400).json('OTP is invalid or has expired');
+console.log(resetToken)
+        //check if token is valid
+        if (resetToken.expired || Date.now() > new Date(resetToken.expiredAt).getTime()) {
+            return res.status(409).json({ message: 'Invalid Reset Token' });
         }
+        //Return Response
+        res.status(200).json({message:'Valid Reset Token'});
 
-        jwt.verify(otp, process.env.JWT_PRIVATE_KEY, async (err, decoded) => {
-            if (err) {
-                return res.status(400).json('OTP is invalid');
-            }
-            if (decoded.email !== email) {
-                return res.status(400).json('OTP does not match email');
-            }
-
-            // hash the new password
-            const hashedPassword = await bcrypt.hash(newPassword, 10);
-            user.password = hashedPassword;
-            user.confirmPassword = hashedPassword;
-            user.resetPasswordToken = undefined;
-            user.resetPasswordExpires = undefined;
-            await user.save();
-
-            res.status(200).json('Password has been reset');
-        })
     } catch (error) {
         next(error);
     }
 }
- 
+
 
 //get user
 
