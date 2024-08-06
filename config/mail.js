@@ -11,6 +11,6 @@
             secure: true, // true for port 465, false for other ports
             auth: {
                 user: process.env.SMTP_USERNAME,
-                pass: process.env.SMTP_PASSWORD
+                password: process.env.SMTP_PASSWORD
             }
         });

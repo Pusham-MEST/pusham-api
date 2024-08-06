@@ -5,54 +5,98 @@ import jwt from 'jsonwebtoken'
 import { mailTransporter} from "../config/mail.js";
 
 
-//post  or user registration
 
-export const register = async(req,res,next) => {
-try {
-    const hashPassword = bcrypt.hashSync(req.body.password, 10);
-    const user= await UserModel.create({
-        ...req.body, 
-        password: hashPassword });
+export const register = async (req, res, next) => {
+    try {
+        // Log the request body to ensure it contains the expected data
+        console.log("Request Body:", req.body);
 
-     res.status(201).json('user created successfully')
-    
-} catch (error) {
-   next(error) 
-}
-}
+        // Validate that the required fields are provided
+        const { username, email, password } = req.body;
 
-//user login
+        if (!username || !email || !password) {
+            return res.status(400).json({ message: 'Username, email, and password are required' });
+        }
+
+        // Check if the user already exists
+        const existingUser = await UserModel.findOne({ email });
+        if (existingUser) {
+            return res.status(409).json({ message: 'User already exists' });
+        }
+
+        // Hash the password using bcrypt
+        const hashPassword = bcrypt.hashSync(password, 10);
+
+        // Create the new user with the hashed password
+        const user = await UserModel.create({
+            username,
+            email,
+            password: hashPassword,
+        });
+
+        // Respond with a success message
+        res.status(201).json({ message: 'User created successfully', user });
+
+    } catch (error) {
+        console.error("Error during registration:", error);
+        next(error);
+    }
+};
+
+
+// User login
 export const userLogin = async (req, res, next) => {
     try {
+        // Extracting the userName and email from request body
+        const { userName, email, password } = req.body;
+
+        // Validate input
+        if (!userName && !email) {
+            return res.status(400).json({ message: 'UserName or Email is required' });
+        }
+
+        // Find the user by userName or email
         const user = await UserModel.findOne({
-            $or:[
-               { userName:req.body.userName},
-               {email:req.body.email}
+            $or: [
+                { userName },
+                { email }
             ]
         });
-        if (!user) {
-            return res.status (401).json ('user not found ') };
 
-        const correctPassword  = bcrypt.compareSync(req.body.password, user.password)
-        if(!correctPassword){
-            return res.status (401).json ('incorect password ')
+        // Check if user is found
+        if (!user) {
+            return res.status(401).json({ message: 'User not found' });
         }
+
+        // Compare the provided password with the stored hashed password
+        const correctPassword = bcrypt.compareSync(password, user.password);
+
+        // Check if the password is correct
+        if (!correctPassword) {
+            return res.status(401).json({ message: 'Incorrect password' });
+        }
+
+        // Generate a JWT token
         const token = jwt.sign(
-            {id:user.id},
-            process.env.JWT_PRIVATE_KEY,
-            {expiresIn: '24h'}
+            { id: user.id },
+            process.env.JWT_PRIVATE_KEY, // Ensure this is set in your environment variables
+            { expiresIn: '24h' }
         );
-        res.status(200).json({message:'user logged in succesfully', accessToken: token})
-    } catch (error) { next(error)
-        
+
+        // Send the response with token
+        res.status(200).json({ message: 'User logged in successfully', accessToken: token });
+
+    } catch (error) {
+        console.error('Error during login:', error); // Log the error for debugging
+        next(error); // Pass the error to the next middleware or error handler
     }
-}
+};
 
 //user logout 
 export const logOut =  async (req, res, next) => {
  try {
     //   await req.session.destroy ();
-      res.status (200).json ('user logged out succesfully')
+      res.status (200).json ({message:'user logged out succesfully'})
    
    
  } catch (error) {
