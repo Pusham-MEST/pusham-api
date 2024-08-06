@@ -1,6 +1,11 @@
 import { Outage } from '../models/outage.js';
 import { outageSchema } from '../schema/schema.js';
-import joi from 'joi';
+import { Neighbourhood } from '../models/Neighbourhood.js';
+
+
+
+
+// import joi from 'joi';
 
 
 // // Get all outages
@@ -57,6 +62,29 @@ import joi from 'joi';
 //   }
 // };
 
+export const search = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    // Step 1: Find the neighborhood by name (case-insensitive)
+    const neighbourhood = await Neighbourhood.findOne({ name: new RegExp(query, 'i') });
+
+    if (!neighbourhood) {
+      return res.status(404).json({ message: 'Neighbourhood not found' });
+    }
+
+    // Step 2: Find outages associated with the neighborhood ID
+    const outages = await Outage.find({ neighbourhoodID: neighbourhood._id }).populate('neighbourhoodID', 'name');
+
+    res.json(outages);
+  } catch (error) {
+    console.error('Error searching for outages by neighbourhood:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
 
 //  Create a new outage
 export const createOutage = async (req, res) => {
@@ -71,6 +99,8 @@ export const createOutage = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+
 
 // Get all outages with populated affectedNeighbourhoods
 export const getOutages = async (req, res) => {
@@ -112,6 +142,8 @@ export const getOutageById = async (req, res) => {
   }
 };
 
+
+
 // Update an outage by ID
 export const updateOutage = async (req, res) => {
   try {
@@ -125,6 +157,9 @@ export const updateOutage = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+
+
 
 // Delete an outage by ID
 export const deleteOutage = async (req, res) => {

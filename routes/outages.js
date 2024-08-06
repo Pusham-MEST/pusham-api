@@ -18,7 +18,7 @@
 
 
 import express from 'express';
-import { createOutage, getOutages, getOutageById, getOutagesByNeighbourhood, updateOutage, deleteOutage } from '../controllers/outageController.js';
+import { createOutage, getOutages, getOutageById, getOutagesByNeighbourhood, updateOutage, deleteOutage, search } from '../controllers/outageController.js';
 
 const outageRouter = express.Router();
 
@@ -29,6 +29,8 @@ outageRouter.put('/outages/:id', updateOutage);
 outageRouter.delete('/outages/:id', deleteOutage);
 outageRouter.get('/neighbourhoods/:id/outages', getOutagesByNeighbourhood); 
 // New route for outages by neighborhood
+
+outageRouter.get('/search', search);
 
 
 export default outageRouter;
