@@ -1,6 +1,6 @@
 import { Outage } from '../models/outage.js';
 import { outageSchema } from '../schema/schema.js';
-import { Neighbourhood } from '../models/Neighbourhood.js';
+import { Neighbourhood } from '../models/neighbourhood.js';
 
 
 

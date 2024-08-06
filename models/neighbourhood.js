@@ -1,4 +1,6 @@
 import { Schema, model, Types } from 'mongoose';
+import { toJSON } from '@reis/mongoose-to-json';
+
 
 // const neighbourhoodSchema = new Schema({
 //   name: { type: String, required: true },
@@ -21,5 +23,9 @@ const neighbourhoodSchema = new Schema({
 }, {
   timestamps: true
 });
+
+
+neighbourhoodSchema.plugin(toJSON)
+
 
 export const Neighbourhood = model('Neighbourhood', neighbourhoodSchema);

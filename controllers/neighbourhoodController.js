@@ -1,4 +1,4 @@
-import { Neighbourhood } from '../models/Neighbourhood.js';
+import { Neighbourhood } from '../models/neighbourhood.js';
 import { neighbourhoodSchema } from '../schema/schema.js';
 import { Outage } from '../models/outage.js';
 import joi from 'joi';
