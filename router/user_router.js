@@ -8,4 +8,5 @@ userRouter.post('/users/login', userLogin)
 userRouter.post('/users/logout',logOut)
 userRouter.post('/users/forgot-Password', forgotPassword)
 userRouter.get('/users/reset-token/:id', verifyResetToken)
+
 export default userRouter
