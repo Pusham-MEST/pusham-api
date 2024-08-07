@@ -43,7 +43,8 @@ const checkUserSession = async (req, res, next) => {
           };
 
           // Verify the token to get user and append user to request
-          const decoded = jwt.verify(token, process.env.JWT_PRIVATE_KEY);
+          const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        //  PRIVATE_KEY
           console.log('Decoded JWT:', decoded);
 
           // Find the user in the database
