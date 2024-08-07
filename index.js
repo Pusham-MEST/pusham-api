@@ -33,13 +33,13 @@ expressOasGenerator.handleResponses(app, {
 app.use(cors({credentials:true, origin:"http://localhost:5173/"}));
 app.use(express.json());
 app.use(session({
-    secret:process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    // cookie: { secure:true },
+    cookie: { secure:false },
 
     store:MongoStore.create({
-        mongoUrl:process.env.mongo_url
+        mongoUrl: process.env.mongo_url
     })
 }))
 
@@ -72,11 +72,6 @@ app.use(express.json());
 
 
 app.use(userRouter)
-// // Db connection
-// await mongoose.connect(process.env.mongo_url).then(() => {
-//     console.log('Database is connected');
-// })
-
 
 
 // Port-listening connection
