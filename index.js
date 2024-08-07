@@ -24,7 +24,7 @@ dbConnection();
 
 expressOasGenerator.handleResponses(app, {
     alwaysServeDocs: true,
-    tags: ["auth", "outages", "neighbourhoods"],
+    tags: ["user", "outage", "neighbourhood"],
     mongooseModels: mongoose.modelNames()
 })
 
