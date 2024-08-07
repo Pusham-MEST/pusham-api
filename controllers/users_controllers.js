@@ -12,10 +12,10 @@ export const register = async (req, res, next) => {
         console.log("Request Body:", req.body);
 
         // Validate that the required fields are provided
-        const { username, email, password } = req.body;
+        const { userName, email, password } = req.body;
 
-        if (!username || !email || !password) {
-            return res.status(400).json({ message: 'Username, email, and password are required' });
+        if (!userName || !email || !password) {
+            return res.status(400).json({ message: 'userName, email, and password are required' });
         }
 
         // Check if the user already exists
@@ -29,8 +29,7 @@ export const register = async (req, res, next) => {
 
         // Create the new user with the hashed password
         const user = await UserModel.create({
-            username,
-            email,
+           ...req.body,
             password: hashPassword,
         });
 
@@ -63,11 +62,11 @@ export const userLogin = async (req, res, next) => {
             ]
         });
 
+
         // Check if user is found
         if (!user) {
             return res.status(401).json({ message: 'User not found' });
         }
-
         // Compare the provided password with the stored hashed password
         const correctPassword = bcrypt.compareSync(password, user.password);
 
@@ -79,18 +78,23 @@ export const userLogin = async (req, res, next) => {
         // Generate a JWT token
         const token = jwt.sign(
             { id: user.id },
-            process.env.JWT_PRIVATE_KEY, // Ensure this is set in your environment variables
+            process.env.JWT_SECRET,
+             // Ensure this is set in your environment variables
             { expiresIn: '24h' }
         );
 
         // Send the response with token
         res.status(200).json({ message: 'User logged in successfully', accessToken: token });
 
+        // Log the error for debugging
     } catch (error) {
-        console.error('Error during login:', error); // Log the error for debugging
-        next(error); // Pass the error to the next middleware or error handler
+        console.error('Error during login:', error); 
+        // Pass the error to the next middleware or error handler
+        next(error); 
     }
 };
+
+
 
 //user logout 
 export const logOut =  async (req, res, next) => {
