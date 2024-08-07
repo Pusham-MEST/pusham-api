@@ -45,7 +45,7 @@ app.use(session({
 
 
 // To custom middleware to check user session or token
-// app.use(checkUserSession);
+app.use(checkUserSession);
 // app.use(auth);
 
 
@@ -54,18 +54,16 @@ app.use(session({
 app.use ('/api/v1', userRouter);
 app.use('/api/v1', checkUserSession , outageRouter);
 app.use('/api/v1', neighbourhoodRouter);
-
-
-
-// Default route for root
-app.get('/', (req, res) => {
-    res.send('Welcome to the Outage Management System API');
-  });
-
-
 // OpenAPI generator requests handling
 expressOasGenerator.handleRequests();
-app.use((req, res) => res.redirect('/api-docs'));
+app.use((req, res) => res.redirect('/api-docs/'));
+
+// // Default route for root
+// app.get('/', (req, res) => {
+//     res.send('Welcome to the Outage Management System API');
+//   });
+
+
 
 
 
