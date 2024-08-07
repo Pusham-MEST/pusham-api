@@ -30,7 +30,7 @@ expressOasGenerator.handleResponses(app, {
 
 // Middleware
 // To Parse incomming JSON request and put the parsed data in req.body 
-app.use(cors({ credentials:true, origin:"*" }));
+app.use(cors({ credentials:true, origin:"http://localhost:5173/" }));
 app.use(express.json());
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -58,13 +58,6 @@ app.use('/api/v1', neighbourhoodRouter);
 expressOasGenerator.handleRequests();
 app.use((req, res) => res.redirect('/api-docs/'));
 
-// // Default route for root
-// app.get('/', (req, res) => {
-//     res.send('Welcome to the Outage Management System API');
-//   });
-
-
-
 
 
 // Port-listening connection
@@ -72,4 +65,5 @@ const port = process.env.PORT || 3050;
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
+
 
