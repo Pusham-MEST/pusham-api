@@ -52,7 +52,7 @@ app.use(checkUserSession);
 // Routes
 // app.use( authRouter );
 app.use ('/api/v1', userRouter);
-app.use('/api/v1', checkUserSession , outageRouter);
+app.use('/api/v1', outageRouter);
 app.use('/api/v1', neighbourhoodRouter);
 // OpenAPI generator requests handling
 expressOasGenerator.handleRequests();
