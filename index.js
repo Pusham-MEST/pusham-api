@@ -45,7 +45,7 @@ app.use(session({
 
 
 // To custom middleware to check user session or token
-// app.use(checkUserSession);
+app.use(checkUserSession);
 // app.use(auth);
 
 
