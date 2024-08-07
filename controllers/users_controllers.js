@@ -1,11 +1,9 @@
+import { UserModel, resetTokenModel } from "../models/userModel.js";
+import bcrypt from "bcrypt";
+import jwt from 'jsonwebtoken';
+import { mailTransporter } from "../config/mail.js";
 
-import { UserModel,resetTokenModel } from "../models/userModel.js";
-import bcrypt from "bcrypt"
-import jwt from 'jsonwebtoken'
-import { mailTransporter} from "../config/mail.js";
-
-
-
+// Register user
 export const register = async (req, res, next) => {
     try {
         // Log the request body to ensure it contains the expected data
@@ -42,22 +40,21 @@ export const register = async (req, res, next) => {
     }
 };
 
-
 // User login
 export const userLogin = async (req, res, next) => {
     try {
-        // Extracting the userName and email from request body
-        const { userName, email, password } = req.body;
+        // Extracting the username and email from request body
+        const { username, email, password } = req.body;
 
         // Validate input
-        if (!userName && !email) {
-            return res.status(400).json({ message: 'UserName or Email is required' });
+        if (!username && !email) {
+            return res.status(400).json({ message: 'Username or Email is required' });
         }
 
-        // Find the user by userName or email
+        // Find the user by username or email
         const user = await UserModel.findOne({
             $or: [
-                { userName },
+                { username },
                 { email }
             ]
         });
@@ -95,7 +92,6 @@ export const userLogin = async (req, res, next) => {
 };
 
 
-
 //user logout 
 export const logOut =  async (req, res, next) => {
  try {
@@ -107,115 +103,90 @@ export const logOut =  async (req, res, next) => {
     next(error)
  }}
     
-//forgot passowrd 
-export const forgotPassword = async (req, res, next) =>{
-try {
-    
-    //Find a user with provided email
-    const user = await UserModel.findOne({email:req.body.email});
-    if(!user){
-        return res.status(404).json({message:'User not found'});
+
+// Forgot password
+export const forgotPassword = async (req, res, next) => {
+    try {
+        // Find a user with the provided email
+        const user = await UserModel.findOne({ email: req.body.email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Generate Reset Token
+        const resetToken = await resetTokenModel.create({
+            userId: user.id,
+        });
+
+        // Send Reset Email
+        await mailTransporter.sendMail({
+            to: req.body.email,
+            from: "emmanuel@laremdetech.com",
+            subject: "Reset Password",
+            html: `
+                <h3>Hello ${user.firstName}</h3>
+                <h4>Please follow the link below to reset your password:</h4>
+                <a href="${process.env.FRONTEND_URL}/reset-password/${resetToken.id}">Click Here</a>
+            `,
+        });
+
+        // Return Response
+        res.status(200).json({ message: 'Password reset email sent' });
+
+    } catch (error) {
+        next(error);
     }
-    
-    //Generate Reset Token 
-const resetToken = await resetTokenModel.create({
-    userId:user.id,
-    });
-       await mailTransporter.sendMail({
-        to:req.body.email,
-        from:"emmanuel@laremdetech.com",
-        subject:"Reset Password",
-        html:`
-        <h3>Hello ${user.firstName}</h3>
-        <h4> Please follow the link below to reset your Password</h4>
-        <a href="${process.env.FRONTEND_URL}/reset-password/${resetToken.id}" > Click Here</a> `
-    });
+};
 
-    // /Return Response 
-    res.status(200).json('Password reset email sent')
-    
-    }
- catch (error) {
-    next(error)
-    
-}
-}
-
-
- //Verify Reset Password Token
+// Verify Reset Password Token
 export const verifyResetToken = async (req, res, next) => {
     try {
-        //Find Reset Token by id 
+        // Find Reset Token by id
         const resetToken = await resetTokenModel.findById(req.params.id);
-        if(!resetToken){
-            return res.status(404).json({message:'Reset Token Not Found'});
+        if (!resetToken) {
+            return res.status(404).json({ message: 'Reset Token Not Found' });
         }
-console.log(resetToken)
-        //check if token is valid
+
+        // Check if token is valid
         if (resetToken.expired || Date.now() > new Date(resetToken.expiredAt).getTime()) {
             return res.status(409).json({ message: 'Invalid Reset Token' });
         }
-        //Return Response
-        res.status(200).json({message:'Valid Reset Token'});
 
+        // Return Response
+        res.status(200).json({ message: 'Valid Reset Token' });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Get user
+export const getUser = async (req, res, next) => {
+    try {
+        const aUser = await UserModel.find(req.body);
+        res.status(201).json('1 user gotten');
     } catch (error) {
         next(error);
     }
 }
 
-
-//get user
-
-const getUser = async(req,res,next) => {
+// Update user
+export const updateUser = async (req, res, next) => {
     try {
-        const aUser= await UserModel.find(req.body);
-    
-        res.status(201).json('1 user gotten')
+        const changeUser = await UserModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.status(201).json('User updated');
     } catch (error) {
-        next(error)
-        
+        next(error);
     }
 }
 
-//update User
- const updateUser = async (req, res, next)=>{
-
-  try {
-      const changeUser = await UserModel.findByIdandUpdate(params.id, req.body);
-  
-      res.status(201).json  ('user updated')
-  } catch (error) {
-    next(error)
-    
-  }
-
- }
-
- //delete User
-
- const deleteUser= (req,res,next)=>{
-  try {
-      const deletingUser= UserModel.findByIdAndDelete(params.id,req.body);
-  
-      res.status(201).json ('user deleted')
-  } catch (error) {
-    next(error)
-    
-  }
-
- }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// Delete user
+export const deleteUser = async (req, res, next) => {
+    try {
+        const deletingUser = await UserModel.findByIdAndDelete(req.params.id);
+        res.status(201).json('User deleted');
+    } catch (error) {
+        next(error);
+    }
+}
 

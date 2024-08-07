@@ -1,16 +1,12 @@
- import { createTransport } from "nodemailer";
-  
-  
-  
-  
-  // Send OTP via email
-        export const mailTransporter = createTransport({
+import nodemailer from 'nodemailer';
 
-            host: process.env.SMTP_HOST, // Outgoing server from cPanel
-            port: process.env.SMTP_PORT, // Port for SSL
-            secure: true, // true for port 465, false for other ports
-            auth: {
-                user: process.env.SMTP_USERNAME,
-                password: process.env.SMTP_PASSWORD
-            }
-        });
+// Send OTP via email
+export const mailTransporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST, // Outgoing server from cPanel
+    port: parseInt(process.env.SMTP_PORT, 10), // Ensure the port is an integer
+    secure: true, // true for port 465, false for other ports
+    auth: {
+        user: process.env.SMTP_USERNAME,
+        pass: process.env.SMTP_PASSWORD
+    }
+});
