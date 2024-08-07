@@ -1,21 +1,26 @@
 import joi from "joi";
 
+// joi schema for signup
 
-// export const userValidationSchema = joi.object({
-//   firstName: joi.string().trim().optional(),
-//   lastName: joi.string().trim().optional(),
-//   userName: joi.string().trim().required().min(3).max(30).alphanum(),
-//   email: joi.string().email().trim().lowercase().required(),
-//   phoneNumber: joi.string().pattern(/^[0-9]+$/, 'numbers').optional(),
-//   neighbourhoods: joi.array().items(joi.string().hex().length(24)).optional(), // Assuming ObjectId
-//   outages: joi.array().items(joi.string().hex().length(24)).optional(), // Assuming ObjectId
-//   password: joi.string().required().min(6).alphanum(),
-//   resetPassword: joi.string().optional(), // Validation for encrypted data isn't needed as it's handled by encryption
-//   resetPasswordExpiry: joi.date().optional(),
-// });
+export const registerSchema = joi.object({
+  firstname: joi.string().required(),
+  lastname:joi.string().required(),
+  username: joi.string().required(),
+  email: joi.string().email().required(),
+  password: joi.string().required()
+});
+
+// joi schema for logIn
+
+export const loginSchema = joi.object({
+  username: joi.string().alphanum(),
+  email: joi.string().email().required(),
+  password: joi.string().required(),
+});
 
 
-// / Joi schema for User
+// joi schema for user
+
 export const userSchema = joi.object({
   firstName: joi.string().trim().required(),
   lastName: joi.string().trim().required(),

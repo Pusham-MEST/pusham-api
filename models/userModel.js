@@ -3,21 +3,21 @@ import { toJSON } from '@reis/mongoose-to-json'
 
 
 // Define notification preferences schema
-const notificationPreferencesSchema = new Schema({
-    email: { type: Boolean, default: true },
-    sms: { type: Boolean, default: false },
-    push: { type: Boolean, default: true },
-    frequency: { type: String, enum: ['instant', 'daily', 'weekly'], default: 'instant' },
-    types: [{ type: String, enum: ['outage', 'maintenance', 'general'], default: ['outage'] }]
-  },{
-    timestamps:true
-  });
+// const notificationPreferencesSchema = new Schema({
+//     email: { type: Boolean, default: true },
+//     sms: { type: Boolean, default: false },
+//     push: { type: Boolean, default: true },
+//     frequency: { type: String, enum: ['instant', 'daily', 'weekly'], default: 'instant' },
+//     types: [{ type: String, enum: ['outage', 'maintenance', 'general'], default: ['outage'] }]
+//   },{
+//     timestamps:true
+//   });
 
 
 // Define user schema
 const userSchema = new Schema({
-    firstName: { type: String},
-    lastName: { type: String },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
     userName: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     phoneNumber: { type: String, required: false, trim: true },
