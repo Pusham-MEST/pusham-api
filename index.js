@@ -64,8 +64,8 @@ app.get('/', (req, res) => {
 
 
 // OpenAPI generator requests handling
-// expressOasGenerator.handleRequests();
-// app.use((req, res) => res.redirect('/api-docs'));
+expressOasGenerator.handleRequests();
+app.use((req, res) => res.redirect('/api-docs'));
 
 
 
