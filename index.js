@@ -46,7 +46,6 @@ app.use(session({
 
 
 // Routes
-// app.use( authRouter );
 app.use ('/api/v1', userRouter);
 app.use('/api/v1', outageRouter);
 app.use('/api/v1', neighbourhoodRouter);

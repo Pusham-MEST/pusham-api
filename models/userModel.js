@@ -22,30 +22,22 @@ const userSchema = new Schema({
     email: { type: String, required: true, unique: true },
     phoneNumber: { type: String, required: false, trim: true },
     // Array of neighborhood IDs or names
-    neighbourhoods: [{ type: Types.ObjectId, ref: 'Neighbourhood' }],
-    outages: [{ type: Types.ObjectId, ref: 'Outage' }],
+    // neighbourhoods: [{ type: Types.ObjectId, ref: 'Neighbourhood' }],
+    // outages: [{ type: Types.ObjectId, ref: 'Outage' }],
     // notificationPreferences: notificationPreferencesSchema    
-    password: {
-      type: String, required: true, minlength: 6, validate: {
-        validator: function (value) {
-          // Alphanumeric validation
-          return /^[a-zA-Z0-9]+$/.test(value);
-        },
-        message: 'Password must be alphanumeric.'
-      }
-    },
-    // password: {type: String, required: true},
+    // password: {
+    //   type: String, required: true, minlength: 6, validate: {
+    //     validator: function (value) {
+    //       // Alphanumeric validation
+    //       return /^[a-zA-Z0-9]+$/.test(value);
+    //     },
+    //     message: 'Password must be alphanumeric.'
+    //   }
+    // },
+    password: {type: String, required: true},
     // confirmPassword: {type: String, required: true},
     resetPasswordToken: { type: String },
-    resetPasswordExpires: { type: Date }
-
-      // Array of neighborhood IDs or names
-  
-
-
-
-
-    
+    resetPasswordExpires: { type: Date }    
     },{
     timestamps:true
   });

@@ -1,23 +1,5 @@
 import joi from "joi";
 
-// joi schema for signup
-
-export const registerSchema = joi.object({
-  firstname: joi.string().required(),
-  lastname:joi.string().required(),
-  username: joi.string().required(),
-  email: joi.string().email().required(),
-  password: joi.string().required()
-});
-
-// joi schema for logIn
-
-export const loginSchema = joi.object({
-  username: joi.string().alphanum(),
-  email: joi.string().email().required(),
-  password: joi.string().required(),
-});
-
 
 // joi schema for user
 
@@ -27,9 +9,10 @@ export const userSchema = joi.object({
   userName: joi.string().trim().required().min(3).max(30),
   email: joi.string().email().trim().required(),
   phoneNumber: joi.string().trim().optional(),
-  neighbourhoods: joi.array().items(joi.string().regex(/^[0-9a-fA-F]{24}$/)), // Array of ObjectIds
-  outages: joi.array().items(joi.string().regex(/^[0-9a-fA-F]{24}$/)), // Array of ObjectIds
-  password: joi.string().alphanum().min(6).required(),
+  // neighbourhoods: joi.array().items(joi.string().regex(/^[0-9a-fA-F]{24}$/)), // Array of ObjectIds
+  // outages: joi.array().items(joi.string().regex(/^[0-9a-fA-F]{24}$/)), // Array of ObjectIds
+  password: joi.string().required(),
+  // password: joi.string().alphanum().min(6).required(),
   // confirmPassword: joi.string().valid(joi.ref('password')).required(), // Validates confirmPassword matches password
   resetPassword: joi.string().trim().optional(),
   resetPasswordExpiry: joi.date().optional(),
