@@ -9,7 +9,6 @@ import { dbConnection } from "./config/dbConfig.js";
 import userRouter from "./router/user_router.js";
 import outageRouter from './routes/outages.js';
 import neighbourhoodRouter from "./routes/neighborhood.js";
-import checkUserSession from "./middleware/auth.js";
 
 
 
@@ -44,9 +43,6 @@ app.use(session({
 }))
 
 
-// To custom middleware to check user session or token
-app.use(checkUserSession);
-// app.use(auth);
 
 
 // Routes
