@@ -30,7 +30,7 @@ expressOasGenerator.handleResponses(app, {
 
 // Middleware
 // To Parse incomming JSON request and put the parsed data in req.body 
-app.use(cors({credentials:true, origin:"http://localhost:5173/"}));
+app.use(cors({ credentials:true, origin:"*" }));
 app.use(express.json());
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -45,14 +45,14 @@ app.use(session({
 
 
 // To custom middleware to check user session or token
-app.use(checkUserSession);
+// app.use(checkUserSession);
 // app.use(auth);
 
 
-// Use routes
+// Routes
 // app.use( authRouter );
 app.use ('/api/v1', userRouter);
-app.use('/api/v1', outageRouter);
+app.use('/api/v1', checkUserSession , outageRouter);
 app.use('/api/v1', neighbourhoodRouter);
 
 
@@ -63,15 +63,10 @@ app.get('/', (req, res) => {
   });
 
 
+// OpenAPI generator requests handling
+// expressOasGenerator.handleRequests();
+// app.use((req, res) => res.redirect('/api-docs'));
 
-expressOasGenerator.handleRequests();
-app.use((req, res) => res.redirect('/api-doc'));
-
-
-app.use(express.json());
-
-
-app.use(userRouter)
 
 
 // Port-listening connection
