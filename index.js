@@ -29,7 +29,7 @@ expressOasGenerator.handleResponses(app, {
 
 // Middleware
 // To Parse incomming JSON request and put the parsed data in req.body 
-app.use(cors({ credentials:true, origin:"http://localhost:5173/" }));
+app.use(cors({ credentials:true, origin:"http://localhost:5173" }));
 app.use(express.json());
 app.use(session({
     secret: process.env.SESSION_SECRET,

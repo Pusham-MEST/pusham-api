@@ -1,16 +1,6 @@
 import mongoose from "mongoose";
 import "dotenv/config";
 
-// const connectionString = process.env.MONGO_URI
-
-
-
-// export const dbConnection = () => {
-//  mongoose.connect(connectionString).then(() => {
-//     console.log('Database is connected')
-// })
-   
-// }
 
 
 // Fetch connection string from environment variables

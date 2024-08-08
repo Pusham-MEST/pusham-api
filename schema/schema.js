@@ -9,11 +9,8 @@ export const userSchema = joi.object({
   userName: joi.string().trim().required().min(3).max(30),
   email: joi.string().email().trim().required(),
   phoneNumber: joi.string().trim().optional(),
-  // neighbourhoods: joi.array().items(joi.string().regex(/^[0-9a-fA-F]{24}$/)), // Array of ObjectIds
-  // outages: joi.array().items(joi.string().regex(/^[0-9a-fA-F]{24}$/)), // Array of ObjectIds
   password: joi.string().required(),
   // password: joi.string().alphanum().min(6).required(),
-  // confirmPassword: joi.string().valid(joi.ref('password')).required(), // Validates confirmPassword matches password
   resetPassword: joi.string().trim().optional(),
   resetPasswordExpiry: joi.date().optional(),
 });
