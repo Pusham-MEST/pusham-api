@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken";
-import { UserModel } from "../models/userModel.js";
 
 
 
@@ -31,117 +30,25 @@ import { UserModel } from "../models/userModel.js";
 
 
 
-// const checkUserSession = async (req, res, next) => {
-//   req.user = {};
-//   if (req.headers.authorization) {
-//       try {
-//           // Extract token from headers
-//           const token = req.headers.authorization.split(' ')[1]
-
-//           if(!token) {
-//               return res.status(401).json({ error: 'Not authenticated, token missing' })
-//           };
-
-//           // Verify the token to get user and append user to request
-//           const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//         //  PRIVATE_KEY
-//           console.log('Decoded JWT:', decoded);
-
-//           // Find the user in the database
-//           req.user = await userModel.findById(decoded.userId)
-
-//           if(!req.user){
-//               return res.status(401).json({ error: 'Not authenticated, user not found' })
-//           }
-//           next();
-          
-//       } catch (error) {
-//           console.log(error.message);
-//           return res.status(401).json({ error: "Token Expired" })
-//       }
-//   }
-//   else {
-//       console.log(error.message)
-//       res.status(401).json({ error: 'Not authenticated' })
-//   }
-// }
-
-// export default checkUserSession;
-
-
-
-
-
-
-export const checkUserSession = async (req, res, next) => {
-  req.user = {};
-  if (req.headers.authorization) {
+export const checkUserSession = (req, res, next) => {
+    console.log( req.body)
+    if (req) {
+      next();
+    } else if (req.headers.authorization) {
       try {
-          // Extract token from headers
-          const token = req.headers.authorization.split(' ')[1]
-
-          if(!token) {
-              return res.status(401).json({ error: 'Not authenticated, token missing' })
-          };
-
-          // Verify the token to get user and append user to request
-          const decoded = jwt.verify(token, process.env.JWT_SECRET);
-          console.log('Decoded JWT:', decoded);
-
-          // Find the user in the database
-          req.user = await UserModel.findById(decoded.userId)
-
-          if(!req.user){
-              return res.status(401).json({ error: 'Not authenticated, user not found' })
-          }
-          next();
-          
+        //extract token from headers
+        const token = req.headers.authorization.split(" ")[1];
+        //verify the token to get the user and append to request
+        req.user = jwt.verify(token, process.env.JWT_SECRET);
+        // call next function
+        next();
+        // res.json(req.headers.authorization)
       } catch (error) {
-          console.log(error.message);
-          return res.status(401).json({ error: "Token Expired" })
+        return res.status(401).json({ error: "Token Expired" })
       }
-  }
-  else {
-      res.status(401).json({ error: 'Not authenticated' })
-  }
-}
-
-// export default checkUserSession;
+    }
+    else {
+      res.status(401).json({error:'Not authenticated'})  }
+  };
 
 
-
-
-
-// export const checkUserSession = async (req, res, next) => {
-//     try {
-//       if (!req.headers.authorization) {
-//         return res.status(401).json({ error: 'Not authenticated' });
-//       }
-  
-//       // Extract token from headers
-//       const token = req.headers.authorization.split(' ')[1];
-  
-//       if (!token) {
-//         return res.status(401).json({ error: 'Not authenticated, token missing' });
-//       }
-  
-//       // Verify the token to get user and append user to request
-//       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//       console.log('Decoded JWT:', decoded);
-  
-//       // Find the user in the database
-//       const user = await UserModel.findById(decoded.userId);
-  
-//       if (!user) {
-//         return res.status(401).json({ error: 'Not authenticated, user not found' });
-//       }
-  
-//       req.user = user;
-//       next();
-//     } catch (error) {
-//       console.error(error.message);
-//       res.status(401).json({ error: 'Token Expired' });
-//     }
-//   };
-  
-//   // export default checkUserSession;

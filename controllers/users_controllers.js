@@ -43,20 +43,19 @@ export const register = async (req, res, next) => {
 // User login
 export const userLogin = async (req, res, next) => {
     try {
-        // Extracting the username and email from request body
-        const { username, email, password } = req.body;
+        // Extracting the userName and email from request body
+        const { userName, email, password } = req.body;
 
         // Validate input
-        if (!username && !email) {
+        if (!userName && !email) {
             return res.status(400).json({ message: 'Username or Email is required' });
         }
 
-        // Find the user by username or email
+        // Find the user by userName or email
         const user = await UserModel.findOne({
             $or: [
-                { username },
-                { email }
-            ]
+                { userName },
+                { email },            ]
         });
 
 
