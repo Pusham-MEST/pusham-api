@@ -9,7 +9,7 @@ import { dbConnection } from "./config/dbConfig.js";
 import userRouter from "./router/user_router.js";
 import outageRouter from './routes/outages.js';
 import neighbourhoodRouter from "./routes/neighborhood.js";
-
+import emailRoutes from  './routes/emailRoutes.js';
 
 
 // create express app
@@ -46,6 +46,7 @@ app.use(session({
 
 
 // Routes
+app.use('/api/v1', emailRoutes);
 app.use ('/api/v1', userRouter);
 app.use('/api/v1', outageRouter);
 app.use('/api/v1', neighbourhoodRouter);
