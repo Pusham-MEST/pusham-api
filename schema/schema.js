@@ -16,6 +16,17 @@ export const userSchema = joi.object({
 });
 
 
+// Registration validator 
+export const registerValidator=  joi.object({
+  firstName: joi.string().required(),
+  lastName: joi.string().required(),
+  userName: joi.string().required().min(3).max(30),
+  email: joi.string().email().required(),
+  phoneNumber: joi.string().optional(),
+  password: joi.string().required(),
+})
+
+
 // joi schema for Outage
 export const outageSchema = joi.object({
   neighbourhoodID: joi.string().regex(/^[0-9a-fA-F]{24}$/).required(), 

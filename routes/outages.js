@@ -19,7 +19,7 @@
 
 import express from 'express';
 import { createOutage, getOutages, getOutageById, getOutagesByNeighbourhood, updateOutage, deleteOutage, search } from '../controllers/outageController.js';
-
+import { sendOutageAlert } from '../controllers/outageController.js';
 const outageRouter = express.Router();
 
 outageRouter.post('/outages', createOutage);
@@ -27,7 +27,7 @@ outageRouter.get('/outages', getOutages);
 outageRouter.get('/outages/:id', getOutageById);
 outageRouter.put('/outages/:id', updateOutage);
 outageRouter.delete('/outages/:id', deleteOutage);
-outageRouter.get('/neighbourhoods/:id/outages', getOutagesByNeighbourhood); 
+outageRouter.post('/outages/send-outage-alert', sendOutageAlert); 
 // New route for outages by neighborhood
 
 outageRouter.get('/search', search);
