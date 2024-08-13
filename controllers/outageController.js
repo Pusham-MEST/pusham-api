@@ -1,6 +1,7 @@
 import { Outage } from '../models/outage.js';
 import { outageSchema } from '../schema/schema.js';
 import { Neighbourhood } from '../models/neighbourhood.js';
+import { mailTransporter } from '../config/mail.js';
 
 
 
@@ -172,4 +173,31 @@ export const deleteOutage = async (req, res) => {
   }
 };
 
-
+export const sendOutageAlert = async (req, res) => {
+  try {
+    const userEmails  = req.body.email;
+  
+    // Construct the email message
+    const mailOptions = {
+      from: process.env.SMTP_USERNAME, // Sender email address
+      to: userEmails, // Recipient email addresses
+      subject: 'Outage Alert',
+      html: `
+        <h1>Outage Alert</h1>
+        <p> We wanted to inform you that our monitoring system has detected a power outage in your area. This outage may affect your electrical services, and we are closely monitoring the situation to keep you updated.</p>
+        <p>We apologize for any inconvenience this may cause.</p>
+      `
+    };
+  
+    // Send the email
+    await mailTransporter.sendMail(mailOptions);
+    res.status(200).json({ message: 'Outage alert emails sent successfully' });
+  
+    
+  } catch (error) {
+    console.error('Error sending outage alert emails:', error);
+      res.status(500).json({ message: 'Failed to send outage alert emails' });
+  }
+  
+  };
+  
