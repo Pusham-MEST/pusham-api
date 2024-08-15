@@ -2,32 +2,27 @@ import { UserModel, resetTokenModel } from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken';
 import { mailTransporter } from "../config/mail.js";
+import { registerValidator } from "../schema/schema.js";
 
 // Register user
 export const register = async (req, res, next) => {
     try {
-        // Log the request body to ensure it contains the expected data
-        console.log("Request Body:", req.body);
-
-        // Validate that the required fields are provided
-        const { userName, email, password } = req.body;
-
-        if (!userName || !email || !password) {
-            return res.status(400).json({ message: 'userName, email, and password are required' });
-        }
+       const {value,error} = registerValidator.validate(req.body)
+if (error){ return res.status(400).send(error.details[0].message)}
 
         // Check if the user already exists
+        const email=value.email;
         const existingUser = await UserModel.findOne({ email });
         if (existingUser) {
             return res.status(409).json({ message: 'User already exists' });
         }
 
         // Hash the password using bcrypt
-        const hashPassword = bcrypt.hashSync(password, 10);
+        const hashPassword = bcrypt.hashSync(value.password, 10);
 
         // Create the new user with the hashed password
         const user = await UserModel.create({
-           ...req.body,
+           ...value,
             password: hashPassword,
         });
 
@@ -120,7 +115,7 @@ export const forgotPassword = async (req, res, next) => {
         // Send Reset Email
         await mailTransporter.sendMail({
             to: req.body.email,
-            from: "emmanuel@laremdetech.com",
+            from: process.env.SMTP_USERNAME,
             subject: "Reset Password",
             html: `
                 <h3>Hello ${user.firstName}</h3>
@@ -162,8 +157,8 @@ export const verifyResetToken = async (req, res, next) => {
 // Get user
 export const getUser = async (req, res, next) => {
     try {
-        const aUser = await UserModel.find(req.body);
-        res.status(201).json('1 user gotten');
+        const aUser = await UserModel.find();
+        res.status(201).json(aUser);
     } catch (error) {
         next(error);
     }
