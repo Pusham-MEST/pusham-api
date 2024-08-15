@@ -1,32 +1,108 @@
 import { UserModel, resetTokenModel } from "../models/userModel.js";
+import { Neighbourhood } from "../models/neighbourhood.js";
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken';
 import { mailTransporter } from "../config/mail.js";
 import { registerValidator } from "../schema/schema.js";
+import axios from 'axios';
 
 // Register user
+// export const register = async (req, res, next) => {
+//     try {
+//        const {value,error} = registerValidator.validate(req.body)
+// if (error){ return res.status(400).send(error.details[0].message)}
+
+//         // Check if the user already exists
+//         const email=value.email;
+//         const existingUser = await UserModel.findOne({ email });
+//         if (existingUser) {
+//             return res.status(409).json({ message: 'User already exists' });
+//         }
+
+//         // Hash the password using bcrypt
+//         const hashPassword = bcrypt.hashSync(value.password, 10);
+
+//         // Create the new user with the hashed password
+//         const user = await UserModel.create({
+//            ...value,
+//             password: hashPassword,
+//         });
+
+//         // Respond with a success message
+//         res.status(201).json({ message: 'User created successfully', user });
+
+//     } catch (error) {
+//         console.error("Error during registration:", error);
+//         next(error);
+//     }
+// };
+
+
+
+
+
+
+
+
+// User login
+
 export const register = async (req, res, next) => {
     try {
-       const {value,error} = registerValidator.validate(req.body)
-if (error){ return res.status(400).send(error.details[0].message)}
+        console.log("Request Body:", req.body);
+
+        // Validate the request body
+        const { error } = registerValidator(req.body);
+        if (error) {
+            return res.status(400).json({ message: error.details[0].message });
+        }
+
+        const { userName, email, password, googlePlaceId } = req.body;
 
         // Check if the user already exists
-        const email=value.email;
         const existingUser = await UserModel.findOne({ email });
         if (existingUser) {
             return res.status(409).json({ message: 'User already exists' });
         }
 
         // Hash the password using bcrypt
-        const hashPassword = bcrypt.hashSync(value.password, 10);
+        const hashPassword = bcrypt.hashSync(password, 10);
 
-        // Create the new user with the hashed password
+        // Fetch location details from Google Places API
+        const apiKey = process.env.GOOGLE_MAPS_API_KEY; 
+        //  The googleapi should be set in the .env file
+        const response = await axios.get(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${googlePlaceId}&key=${apiKey}`);
+
+        const { lat, lng } = response.data.result.geometry.location;
+        const address = response.data.result.formatted_address;
+
+        // Find or create the neighbourhood
+        let neighbourhood = await Neighbourhood.findOne({ placeId: googlePlaceId });
+        if (!neighbourhood) {
+            neighbourhood = await Neighbourhood.create({
+                name: response.data.result.name,
+                placeId: googlePlaceId,
+                location: {
+                    type: 'Point',
+                    coordinates: [lng, lat]
+                },
+                address
+            });
+        }
+
+        // Create and save the user
         const user = await UserModel.create({
-           ...value,
+            userName,
+            email,
             password: hashPassword,
+            location: {
+                type: 'Point',
+                coordinates: [lng, lat],
+                address,
+                placeId: googlePlaceId,
+                neighbourhood: neighbourhood._id
+            }
         });
 
-        // Respond with a success message
         res.status(201).json({ message: 'User created successfully', user });
 
     } catch (error) {
@@ -34,6 +110,7 @@ if (error){ return res.status(400).send(error.details[0].message)}
         next(error);
     }
 };
+
 
 // User login
 export const userLogin = async (req, res, next) => {
