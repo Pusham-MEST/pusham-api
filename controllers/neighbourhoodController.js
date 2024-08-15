@@ -1,17 +1,6 @@
 import { Neighbourhood } from '../models/neighbourhood.js';
 import { neighbourhoodSchema } from '../schema/schema.js';
 import { Outage } from '../models/outage.js';
-import joi from 'joi';
-
-// export const search = async (req, res) => {
-//   try {
-//     const { query } = req.query;
-//     const results = await Neighbourhood.find({ name: new RegExp(query, 'i') });
-//     res.json(results);
-//   } catch (error) {
-//     res.status(500).json({ message: 'Server error' });
-//   }
-// };``
 
 
 

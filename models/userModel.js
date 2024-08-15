@@ -22,8 +22,8 @@ const userSchema = new Schema({
     email: { type: String, required: true, unique: true },
     phoneNumber: { type: String, required: false, trim: true },
     // Array of neighborhood IDs or names
-    // neighbourhoods: [{ type: Types.ObjectId, ref: 'Neighbourhood' }],
-    // outages: [{ type: Types.ObjectId, ref: 'Outage' }],
+    neighbourhoods: [{ type: Types.ObjectId, ref: 'Neighbourhood' }],
+    outages: [{ type: Types.ObjectId, ref: 'Outage' }],
     // notificationPreferences: notificationPreferencesSchema    
     // password: {
     //   type: String, required: true, minlength: 6, validate: {

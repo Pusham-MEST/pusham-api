@@ -89,14 +89,20 @@ export const search = async (req, res) => {
 //  Create a new outage
 export const createOutage = async (req, res) => {
   try {
-    const { error, value } = outageSchema.validate(req.body);
-    if (error) return res.status(400).json({ error: error.details[0].message });
-
-    const outage = new Outage(value);
-    await outage.save();
-    res.status(201).json(outage);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const { neighbourhoodID, startTime, endTime, status, description } = req.body;
+    
+    const newOutage = new Outage({
+      neighbourhoodID,
+      startTime,
+      endTime,
+      status,
+      description,
+    });
+    
+    await newOutage.save();
+    res.status(201).json(newOutage);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
