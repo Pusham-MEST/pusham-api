@@ -1,3 +1,4 @@
+import axios from "axios";
 import express from "express";
 import mongoose from "mongoose";
 import 'dotenv/config';
@@ -50,16 +51,47 @@ app.use('/api/v1', emailRoutes);
 app.use ('/api/v1', userRouter);
 app.use('/api/v1', outageRouter);
 app.use('/api/v1', neighbourhoodRouter);
+
+// Define route to get location suggestions
+app.get('/api/places', async (req, res) => {
+    const { input } = req.query;
+
+    if (!input) {
+        return res.status(400).json({ error: 'Input is required' });
+    }
+
+    try {
+        const response = await axios.get(`https://maps.googleapis.com/maps/api/place/autocomplete/json`, {
+            params: {
+                input,
+                key: process.env.GOOGLE_API_KEY,
+                 // Adjust types according to your needs
+                 types: '(cities)'
+            }
+        });
+
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error fetching places:', error.message);
+        res.status(500).json({ error: 'Failed to fetch locations' });
+    }
+});
+
+
+
 // OpenAPI generator requests handling
 expressOasGenerator.handleRequests();
 app.use((req, res) => res.redirect('/api-docs/'));
 
 
 
+
 // Port-listening connection
-const port = process.env.PORT || 3050;
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+// const port = process.env.PORT || 3050;
+// app.listen(port, () => {
+//     console.log(`Server running on port ${port}`);
+// });
+
+app.listen(process.env.PORT || 3050, () => {
+    console.log(`Server running on port ${process.env.PORT || 3050}`);
 });
-
-

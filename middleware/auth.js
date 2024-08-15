@@ -30,33 +30,55 @@ import jwt from "jsonwebtoken";
 
 
 
-export const checkUserSession = (req, res, next) => {
-    console.log( req.body)
-    if (req) {
-      next();
-    } else if (req.headers.authorization) {
-      try {
-        //extract token from headers
-        const token = req.headers.authorization.split(" ")[1];
-        //verify the token to get the user and append to request
-        req.user = jwt.verify(token, process.env.JWT_SECRET);
-        // call next function
-        next();
-        // res.json(req.headers.authorization)
-      } catch (error) {
-        return res.status(401).json({ error: "Token Expired" })
+// export const checkUserSession = (req, res, next) => {
+//     console.log( req.body)
+//     if (req) {
+//       next();
+//     } else if (req.headers.authorization) {
+//       try {
+//         //extract token from headers
+//         const token = req.headers.authorization.split(" ")[1];
+//         //verify the token to get the user and append to request
+//         req.user = jwt.verify(token, process.env.JWT_SECRET);
+//         // call next function
+//         next();
+//         // res.json(req.headers.authorization)
+//       } catch (error) {
+//         return res.status(401).json({ error: "Token Expired" })
+//       }
+//     }
+//     else {
+//       res.status(401).json({error:'Not authenticated'})  }
+//   };
+
+
+
+ 
+  // Middleware to check if user is authenticated
+  export const checkUserSession = (req, res, next) => {
+      const authHeader = req.headers.authorization;
+      if (!authHeader) {
+          return res.status(401).json({ error: 'No authorization header provided' });
       }
-    }
-    else {
-      res.status(401).json({error:'Not authenticated'})  }
+  
+      const token = authHeader.split(' ')[1];
+      if (!token) {
+          return res.status(401).json({ error: 'Token is missing' });
+      }
+  
+      try {
+          req.user = jwt.verify(token, process.env.JWT_SECRET);
+          next();
+      } catch (error) {
+          return res.status(401).json({ error: 'Invalid or expired token' });
+      }
   };
-
-
-
-  // Check if user is admin
+  
+  // Middleware to check if user is an admin
   export const isAdmin = (req, res, next) => {
-    if (req.user && req.user.role === 'admin') {
-      return next();
-    }
-    res.status(403).json({ error: 'Access denied, admin only' });
+      if (req.user && req.user.role === 'admin') {
+          return next();
+      }
+      res.status(403).json({ error: 'Access denied, admin only' });
   };
+  
